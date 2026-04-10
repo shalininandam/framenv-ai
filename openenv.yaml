@@ -1,0 +1,106 @@
+name: FarmEnv-AI
+version: "1.0"
+description: >
+  A real-world farming simulation environment
+  where an AI agent learns optimal crop management
+  through reinforcement learning.
+
+domain: agriculture
+tags:
+  - farming
+  - reinforcement-learning
+  - real-world
+  - crop-management
+
+environment:
+  type: sequential
+  max_steps: 30
+
+observation_space:
+  type: dict
+  fields:
+    day:
+      type: integer
+      min: 0
+      max: 30
+    water_level:
+      type: float
+      min: 0.0
+      max: 100.0
+    soil_health:
+      type: float
+      min: 0.0
+      max: 100.0
+    pest_level:
+      type: float
+      min: 0.0
+      max: 100.0
+    growth_stage:
+      type: float
+      min: 0.0
+      max: 5.0
+    weather:
+      type: string
+      values: [sunny, cloudy, rainy, stormy]
+    yield_score:
+      type: float
+      min: 0.0
+      max: 500.0
+
+action_space:
+  type: discrete
+  n: 5
+  actions:
+    0: Water Crops
+    1: Apply Fertilizer
+    2: Apply Pesticide
+    3: Do Nothing
+    4: Harvest
+
+reward:
+  type: shaped
+  min: -50
+  max: 100
+  description: >
+    Reward based on correct farming decisions.
+    Positive for good actions at right time,
+    negative for wrong or unnecessary actions.
+
+endpoints:
+  reset:
+    method: POST
+    path: /reset
+    description: Reset farm to initial state
+  step:
+    method: POST
+    path: /step
+    description: Take farming action
+    body:
+      action:
+        type: integer
+        min: 0
+        max: 4
+  state:
+    method: GET
+    path: /state
+    description: Get current farm state
+
+tasks:
+  - id: basic_survival
+    description: Keep crops alive for 30 days
+    difficulty: easy
+    success_threshold: 0.3
+
+  - id: optimal_growth
+    description: Maximize crop growth stage to 3+
+    difficulty: medium
+    success_threshold: 0.6
+
+  - id: maximum_yield
+    description: Achieve harvest with yield score above 150
+    difficulty: hard
+    success_threshold: 0.9
+
+baseline:
+  script: inference.py
+  expected_reward: 50.0
